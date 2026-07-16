@@ -1,54 +1,61 @@
 # TODO: make it scalable, start with an empty dict
-# TODO: remove add wallet, unnecessary
 
 import sys
 
-wallets = {
-    "Cash": 500,
-    "GCash": 1500,
-    "Landbank": 3000
-}
-
-expenses = {
-    "Food": 0,
-    "Transport": 0,
-    "School": 0
-}
+wallets = {}
+expenses = {}
 
 def displayWallet():
+    if not wallets:
+        print("No wallets found.")
+        print("Please create a wallet first.")
     for key, value in wallets.items(): 
         print(f"{key}: ₱{value}")
+    # for dashboard, prints wallet w balance
 
 def displayExpenses():
+    if not expenses:
+        print("No expenses found.")
+        print("Please create a wallet first.")
     for key, value in expenses.items():
         print(f"{key}: ₱{value}")
+    # for dashboard, prints category w expense
 
 def printBudget():
     totalBudget = sum(wallets.values())
-    
     displayWallet()
-    
     print(f"\nTotal: ₱{totalBudget}")
+    # just prints the total budget
 
 def printExpenses():
     totalExpenses = sum(expenses.values())
-    
     displayExpenses()
-
     print(f"\nTotal: ₱{totalExpenses}")
+    # just prints the total expenses i guess
 
 def chooseWallet():
-    walletNames = list(wallets.keys())
-    for index, source in enumerate(walletNames):
-        print(f"{index + 1}. {source}")
-
-    choice = int(input("Choose a wallet: "))
-    if choice <= 0 or choice > len(walletNames):
-        print("Invalid option")
+    if not wallets:
+        print("No wallets found.")
+        print("Please create a wallet first.")
         return
     
-    selectedWallet = walletNames[choice - 1]
-    return selectedWallet
+    walletNames = list(wallets.keys())
+    while True:
+        try:
+            for index, source in enumerate(walletNames):
+                print(f"{index + 1}. {source}")
+
+            choice = int(input("Choose a wallet: "))
+        except ValueError:
+            print(f"Please input a valid option.")
+            continue
+        if choice <= 0 or choice > len(walletNames):
+            print("Invalid option")
+            continue
+    
+        selectedWallet = walletNames[choice - 1]
+        return selectedWallet
+    # prints key with number then returns user's selected wallet
 
 def chooseExpense():
     expenseNames = list(expenses.keys())
@@ -63,6 +70,7 @@ def chooseExpense():
     
     selectedExpense = expenseNames[choice - 1]
     return selectedExpense
+    # prints key with number then returns user's selected category
 
 def addIncome():
     selectedWallet = chooseWallet()
