@@ -106,58 +106,60 @@ def addIncome():
 
 def addExpense():
     if not expenses:
-        expense = input("Enter expense category: ").capitalize()
-        amount = float(input("Enter expense amount: "))
-        expenses[expense] = amount
-    else:
-        while True:
-            choice = int(input("Do you want to add a new expense category?\n[1] Yes\n[2] No\nEnter choice: "))
-            if choice == 1:
-                expense = input("Enter expense category: ").capitalize()
-                if expense in expenses:
-                    print("You already have this expense category.")
-                    continue
-                amount = float(input("Enter expense amount: "))
-                expenses[expense] = amount
-                return
-            elif choice == 2:
-                paidAmt = 0
-                selectedExpense = chooseExpense()
-                amount = float(input("Amount of expense to add: "))
-                
-                while True:
-                    print("Paid from:")
-                    selectedWallet = chooseWallet()
-                    deduction = float(input("Amount to deduct: "))
+        newExpense()
+        return
+    
+    while True:
+        choice = int(input("Do you want to add a new expense category?\n[1] Yes\n[2] No\nEnter choice: "))
+        if choice == 1:
+            newExpense()
+            return
+        elif choice == 2:
+            category = chooseExpense()
+            paidAmt = float(input("Enter amount paid: "))
+            expenses[category] = paidAmt
 
-                    if deduction <= 0:
-                        print("Please input a value greater than 0.")
-                        continue
+            deductBalance(paidAmt)
+            return
+        else:
+            print("Please choose from one of the options.")
+            continue
 
-                    if deduction > wallets[selectedWallet]:
-                        print("You don't have enough balance to deduct this amount.")
-                        continue
+def deductBalance(paidAmt):
+    debt = paidAmt
+    while True:
+        print("Paid from: ")
+        selectedWallet = chooseWallet()
+        deduct = float(("Enter amount paid from this wallet: "))
 
-                    wallets[selectedWallet] -= deduction
-                    paidAmt += deduction
-                    remaining = amount - paidAmt
+        if deduct > wallets[selectedWallet]:
+            print("You don't have enough balance to deduct this amount. Please input a different amount.")
+            continue
+        else:
+            print(f"Deducting ₱{deduct} from {selectedWallet}")
+            wallets[selectedWallet] -= deduct
+            remaining = debt - deduct
 
-                    if remaining > 0:
-                        print(f"You still need ₱{remaining}.\nChoose another wallet.")
-                        continue
-                    elif remaining < 0:
-                        print(f"You overpaid your expense. Please try again.")
-                        paidAmt -= deduction
-                        remaining = amount - paidAmt
-                        wallets[selectedWallet] += deduction
-                        continue
-                    else:
-                        print("Expense paid successfully.")
-                        expenses[selectedExpense] += amount
-                        return
-            else:
-                print("Please choose a valid option.")
+            if remaining > 0:
+                print(f"You still have ₱{remaining} left. Please choose another wallet to deduct from.")
                 continue
+            elif remaining < 0:
+                print(f"You have overspent. Though I don't know how you bypassed this lol.")
+                continue
+            else:
+                print(f"You have successfully spent ₱{debt}.")
+                return
+
+def newExpense():
+    expense = input("Enter expense category: ").capitalize()
+
+    if expense in expenses:
+        print("You already have this expense category.")
+        return
+    
+    amount = float(input("Enter expense amount: "))
+    expenses[expense] = amount
+# you should deduct everytime a new expense is added that is > 0
 
 def transferMoney():
     while True:
@@ -184,7 +186,7 @@ def transferMoney():
         wallets[receivingWallet] += amount
 
         print("Transfer Successful. Would you like to make another transfer?")
-        choice = int(input("[1] Yes\n[2] No"))
+        choice = int(input("[1] Yes\n[2] No\nEnter choice: "))
 
         if choice == 1:
             continue
@@ -204,7 +206,7 @@ def dashboard():
     
     printBudget() #print total budget
 
-    print(f"\nThis Month:")
+    print(f"\nExpenses this month:")
     printExpenses()
 
     print("==================\n")
