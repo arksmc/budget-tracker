@@ -16,7 +16,7 @@ def displayWallet():
 def displayExpenses():
     if not expenses:
         print("No expenses found.")
-        print("Please create a wallet first.")
+        print("Please create an expense category first.")
     for key, value in expenses.items():
         print(f"{key}: ₱{value}")
     # for dashboard, prints category w expense
@@ -24,13 +24,13 @@ def displayExpenses():
 def printBudget():
     totalBudget = sum(wallets.values())
     displayWallet()
-    print(f"\nTotal: ₱{totalBudget}")
+    print(f"\nTotal Budget: ₱{totalBudget}")
     # just prints the total budget
 
 def printExpenses():
     totalExpenses = sum(expenses.values())
     displayExpenses()
-    print(f"\nTotal: ₱{totalExpenses}")
+    print(f"\nTotal Expenses: ₱{totalExpenses}")
     # just prints the total expenses i guess
 
 def chooseWallet():
@@ -44,7 +44,6 @@ def chooseWallet():
         try:
             for index, source in enumerate(walletNames):
                 print(f"{index + 1}. {source}")
-
             choice = int(input("Choose a wallet: "))
         except ValueError:
             print(f"Please input a valid option.")
@@ -58,25 +57,52 @@ def chooseWallet():
     # prints key with number then returns user's selected wallet
 
 def chooseExpense():
-    expenseNames = list(expenses.keys())
-
-    for index, source in enumerate(expenseNames):
-        print(f"{index + 1}. {source}")
-    
-    choice = int(input("Choose an expense: "))
-    if choice <= 0 or choice > len(expenseNames):
-        print("Invalid option")
+    if not expenses:
+        print("No expenses found.")
+        print("Please create an expense category first.")
         return
     
-    selectedExpense = expenseNames[choice - 1]
-    return selectedExpense
+    expenseNames = list(expenses.keys())
+    while True:
+        try:
+            for index, source in enumerate(expenseNames):
+                print(f"{index + 1}. {source}")
+            choice = int(input("Choose an expense: "))
+        except ValueError:
+            print(f"Please input a valid option.")
+            continue
+        if choice <= 0 or choice > len(expenseNames):
+            print("Invalid option")
+            continue
+    
+        selectedExpense = expenseNames[choice - 1]
+        return selectedExpense
     # prints key with number then returns user's selected category
 
 def addIncome():
-    selectedWallet = chooseWallet()
-
-    amount = float(input("Amount to add: "))
-    wallets[selectedWallet] += amount
+    if not wallets:
+        wallet = input("Enter wallet name: ")
+        amount = float(input("Amount to add: "))
+        wallets[wallet] = amount
+    else:
+        while True:
+            choice = int(input("Do you want to add a new wallet?\n[1] Yes\n[2] No"))
+            if choice == 1:
+                wallet = str(input("Enter wallet name: "))
+                if wallet in wallets:
+                    print("You already have this wallet.")
+                    continue
+                amount = float(input("Amount to add: "))
+                wallets[wallet] = amount
+                return
+            elif choice == 2:
+                selectedWallet = chooseWallet()
+                amount = float(input("Amount to add: "))
+                wallets[selectedWallet] += amount
+                return
+            else:
+                print("Please choose a valid option.")
+                continue
 
 def addExpense():
     
@@ -91,20 +117,45 @@ def addExpense():
     wallets[selectedWallet] -= deduction
 
 def transferMoney():
-    print(f"Transfer from: ")
-    selectedWallet = chooseWallet()
-    print(f"Transfer to: ")
-    receivingWallet = chooseWallet()
-    amount = float(input("Amount to transfer: "))
+    while True:
+        print(f"Transfer from: ")
+        selectedWallet = chooseWallet()
+        print(f"Transfer to: ")
+        receivingWallet = chooseWallet()
 
-    wallets[selectedWallet] -= amount
-    wallets[receivingWallet] += amount
+        if selectedWallet == receivingWallet:
+            print("You cannot transfer money to the same wallet. Please try again.")
+            continue
+
+        amount = float(input("Amount to transfer: "))
+
+        if amount <= 0:
+            print("Please input an amount greater than 0.")
+            continue
+
+        if amount > wallets[selectedWallet]:
+            print("You don't have the sufficient funds for this transfer.")
+            continue
+
+        wallets[selectedWallet] -= amount
+        wallets[receivingWallet] += amount
+
+        print("Transfer Successful. Would you like to make another transfer?")
+        choice = int(input("[1] Yes\n[2] No"))
+
+        if choice == 1:
+            continue
+        elif choice == 2:
+            return
+        else:
+            print("Please choose from one of the options.")
+            continue
 
     #edge cases: transferring to same wallet, amount more than balance
 
 def dashboard():
     print("==================") 
-    print("Budget Tracker\n")
+    print("  Budget Tracker  ")
     print("==================\n")
     print("Accounts:\n")
     
