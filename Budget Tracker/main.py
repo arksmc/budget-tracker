@@ -81,14 +81,14 @@ def chooseExpense():
 
 def addIncome():
     if not wallets:
-        wallet = input("Enter wallet name: ")
+        wallet = input("Enter wallet name: ").capitalize()
         amount = float(input("Amount to add: "))
         wallets[wallet] = amount
     else:
         while True:
-            choice = int(input("Do you want to add a new wallet?\n[1] Yes\n[2] No"))
+            choice = int(input("Do you want to add a new wallet?\n[1] Yes\n[2] No\nEnter choice: "))
             if choice == 1:
-                wallet = str(input("Enter wallet name: "))
+                wallet = str(input("Enter wallet name: ")).capitalize()
                 if wallet in wallets:
                     print("You already have this wallet.")
                     continue
@@ -105,16 +105,59 @@ def addIncome():
                 continue
 
 def addExpense():
-    
-    selectedExpense = chooseExpense()
-   
-    amount = float(input("Amount to add: "))
-    expenses[selectedExpense] += amount ## ^ adding amount to expense category
+    if not expenses:
+        expense = input("Enter expense category: ").capitalize()
+        amount = float(input("Enter expense amount: "))
+        expenses[expense] = amount
+    else:
+        while True:
+            choice = int(input("Do you want to add a new expense category?\n[1] Yes\n[2] No\nEnter choice: "))
+            if choice == 1:
+                expense = input("Enter expense category: ").capitalize()
+                if expense in expenses:
+                    print("You already have this expense category.")
+                    continue
+                amount = float(input("Enter expense amount: "))
+                expenses[expense] = amount
+                return
+            elif choice == 2:
+                paidAmt = 0
+                selectedExpense = chooseExpense()
+                amount = float(input("Amount of expense to add: "))
+                
+                while True:
+                    print("Paid from:")
+                    selectedWallet = chooseWallet()
+                    deduction = float(input("Amount to deduct: "))
 
-    selectedWallet = chooseWallet()
-    deduction = float(input("Amount to deduct: "))
+                    if deduction <= 0:
+                        print("Please input a value greater than 0.")
+                        continue
 
-    wallets[selectedWallet] -= deduction
+                    if deduction > wallets[selectedWallet]:
+                        print("You don't have enough balance to deduct this amount.")
+                        continue
+
+                    wallets[selectedWallet] -= deduction
+                    paidAmt += deduction
+                    remaining = amount - paidAmt
+
+                    if remaining > 0:
+                        print(f"You still need ₱{remaining}.\nChoose another wallet.")
+                        continue
+                    elif remaining < 0:
+                        print(f"You overpaid your expense. Please try again.")
+                        paidAmt -= deduction
+                        remaining = amount - paidAmt
+                        wallets[selectedWallet] += deduction
+                        continue
+                    else:
+                        print("Expense paid successfully.")
+                        expenses[selectedExpense] += amount
+                        return
+            else:
+                print("Please choose a valid option.")
+                continue
 
 def transferMoney():
     while True:
